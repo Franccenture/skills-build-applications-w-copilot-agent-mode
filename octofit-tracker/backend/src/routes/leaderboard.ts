@@ -1,13 +1,12 @@
 import { Router } from 'express';
+import Leaderboard from '../models/Leaderboard';
 
 const router = Router();
 
 // GET /api/leaderboard/
 router.get('/', async (_req, res) => {
-  res.json([
-    { rank: 1, user: 'Alice', score: 1500 },
-    { rank: 2, user: 'Bob', score: 1400 },
-  ]);
+  const entries = await Leaderboard.find().populate('user').sort({ rank: 1, score: -1 }).lean();
+  res.json(entries);
 });
 
 export default router;

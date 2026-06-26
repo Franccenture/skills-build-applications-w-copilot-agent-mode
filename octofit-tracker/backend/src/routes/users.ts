@@ -1,25 +1,25 @@
 import { Router } from 'express';
+import User from '../models/User';
 
 const router = Router();
 
 // GET /api/users/
 router.get('/', async (_req, res) => {
-  // placeholder - return sample users
-  res.json([
-    { id: 'u1', name: 'Alice' },
-    { id: 'u2', name: 'Bob' },
-  ]);
+  const users = await User.find().populate('team').lean();
+  res.json(users);
 });
 
 // GET /api/users/:id
 router.get('/:id', async (req, res) => {
-  res.json({ id: req.params.id, name: 'Placeholder User' });
+  const user = await User.findById(req.params.id).populate('team').lean();
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json(user);
 });
 
 // POST /api/users/
 router.post('/', async (req, res) => {
-  // accept body and echo back for now
-  res.status(201).json({ id: 'new-user', ...req.body });
+  const created = await User.create(req.body);
+  res.status(201).json(created);
 });
 
 export default router;

@@ -1,23 +1,25 @@
 import { Router } from 'express';
+import Workout from '../models/Workout';
 
 const router = Router();
 
 // GET /api/workouts/
 router.get('/', async (_req, res) => {
-  res.json([
-    { id: 'w1', user: 'u1', duration_min: 45 },
-    { id: 'w2', user: 'u2', duration_min: 30 },
-  ]);
+  const workouts = await Workout.find().populate('user').populate('activities').lean();
+  res.json(workouts);
 });
 
 // GET /api/workouts/:id
 router.get('/:id', async (req, res) => {
-  res.json({ id: req.params.id, user: 'u1', duration_min: 45 });
+  const workout = await Workout.findById(req.params.id).populate('user').populate('activities').lean();
+  if (!workout) return res.status(404).json({ error: 'Workout not found' });
+  res.json(workout);
 });
 
 // POST /api/workouts/
 router.post('/', async (req, res) => {
-  res.status(201).json({ id: 'new-workout', ...req.body });
+  const created = await Workout.create(req.body);
+  res.status(201).json(created);
 });
 
 export default router;
